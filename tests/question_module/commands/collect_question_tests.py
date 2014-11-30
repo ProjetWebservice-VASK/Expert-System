@@ -1,8 +1,8 @@
 import unittest
 import expert_system
 import mock
-from question_module.commands.collect_question import CollectQuestion
-from question_module.exceptions import request_exceptions
+from app.question_module.commands.collect_question import CollectQuestion
+from app.question_module.exceptions import request_exceptions
 import requests
 
 

@@ -1,5 +1,5 @@
 from flask.ext.script import Command
-from question_module.exceptions.request_exceptions import WrongStatusCodeException, NoContentException
+from app.question_module.exceptions.request_exceptions import WrongStatusCodeException, NoContentException
 import requests
 
 
