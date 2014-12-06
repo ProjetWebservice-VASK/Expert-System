@@ -79,7 +79,7 @@ class TestCollectQuestion(unittest.TestCase):
 
         self.assertEquals("PUT", request.method)
         self.assertEquals(self.url_format % (self.host, self.unknown_answer_url % self.question_id), request.url)
-        self.assertIsNone(request.json)
+        self.assertEquals(None, request.json)
 
     # Posting answer
     @httpretty.activate
