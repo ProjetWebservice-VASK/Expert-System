@@ -22,6 +22,8 @@ class CollectQuestion(Command):
         print("Connecting to server...")
         question = self.request_question(host, url)
         answer = raw_input(question.properties["question"])
+        self.post_answer(host, question.links["answer"].url(), answer)
+        print("Answer submitted...")
 
     def request_question(self, host, url):
         response = requests.get(self.url_format % (host, url))
@@ -33,15 +35,22 @@ class CollectQuestion(Command):
 
         return dougrain.Document.from_object(response.json())
 
-    def post_answer(self, host, answer_url):
-        pass
+    def post_answer(self, host, answer_url, answer_text):
+        answer_request = self.create_answer_request(host, answer_url, answer_text)
+        response = requests.Session().send(answer_request.prepare())
+
+        if response.status_code == 204:
+            return True
+        else:
+            raise WrongStatusCodeException(response)
 
     def create_answer_request(self, host, answer_url, answer_text):
         request = requests.Request("PUT", self.url_format % (host, answer_url))
 
-        answer = {
-            "answer": answer_text
-        }
-        request.json = answer
+        if answer_text is not None:
+            answer = {
+                "answer": answer_text
+            }
+            request.json = answer
 
         return request

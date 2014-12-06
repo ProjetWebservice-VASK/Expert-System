@@ -14,6 +14,7 @@ class TestCollectQuestion(unittest.TestCase):
     host = "test.com"
     question_url = "questions/latest"
     answer_url = "question/%d/answer"
+    unknown_answer_url = "question/%d/answer"
 
     question_id = 1
     question_text = "Texte de la question"
@@ -43,6 +44,7 @@ class TestCollectQuestion(unittest.TestCase):
 
         self.assertEquals(self.question_id, response.properties["id"])
         self.assertEquals(self.question_text, response.properties["question"])
+        self.assertEquals(self.answer_url % self.question_id, response.links["answer"].url())
 
     @httpretty.activate
     def test_request_question_not_found(self):
@@ -61,7 +63,6 @@ class TestCollectQuestion(unittest.TestCase):
                           lambda: self.collect_question_command.request_question(self.host, self.question_url))
 
     # Answer creation
-    @httpretty.activate
     def test_create_answer_request(self):
         request = self.collect_question_command.create_answer_request(self.host, self.answer_url % self.question_id, self.answer_text)
 
@@ -73,6 +74,28 @@ class TestCollectQuestion(unittest.TestCase):
         self.assertEquals(self.url_format % (self.host, self.answer_url % self.question_id), request.url)
         self.assertEquals(expected_answer_json, request.json)
 
+    def test_create_unknown_answer_request(self):
+        request = self.collect_question_command.create_answer_request(self.host, self.unknown_answer_url % self.question_id, None)
+
+        self.assertEquals("PUT", request.method)
+        self.assertEquals(self.url_format % (self.host, self.unknown_answer_url % self.question_id), request.url)
+        self.assertIsNone(request.json)
+
+    # Posting answer
+    @httpretty.activate
+    def test_post_answer(self):
+        httpretty.register_uri(httpretty.PUT, self.url_format % (self.host, self.answer_url % self.question_id),
+                               status=204)
+
+        self.assertTrue(self.collect_question_command.post_answer(self.host, self.answer_url % self.question_id, self.answer_text))
+
+    @httpretty.activate
+    def test_post_answer_with_error(self):
+        httpretty.register_uri(httpretty.PUT, self.url_format % (self.host, self.answer_url % self.question_id),
+                               status=404)
+
+        self.assertRaises(request_exceptions.WrongStatusCodeException,
+                          lambda: self.collect_question_command.post_answer(self.host, self.answer_url % self.question_id, self.answer_text))
 
 if __name__ == '__main__':
     unittest.main()
