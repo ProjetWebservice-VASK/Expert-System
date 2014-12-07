@@ -4,7 +4,7 @@ import json
 import time
 import dougrain
 from flask.ext.script import Command, Option
-from app.question_module.exceptions.request_exceptions import WrongStatusCodeException, NoContentException
+from app.question_module.exceptions.request_exceptions import WrongStatusCodeException, InvalidQuestionFormatException
 from pip.backwardcompat import raw_input
 import requests
 
@@ -39,10 +39,22 @@ class CollectQuestion(Command):
 
         if response.status_code == 204:
             return None
+        elif response.status_code == 200:
+            question = dougrain.Document.from_object(response.json())
+            if not self.is_response_format_valid(question):
+                raise InvalidQuestionFormatException()
         elif response.status_code != 200:
             raise WrongStatusCodeException(response)
 
-        return dougrain.Document.from_object(response.json())
+        return question
+
+    def is_response_format_valid(self, response):
+        if "id" not in response.properties \
+                or "question" not in response.properties \
+                or "answer" not in response.links:
+            return False
+
+        return True
 
     def post_answer(self, host, answer_url, answer_text):
         answer_request = self.create_answer_request(host, answer_url, answer_text)
