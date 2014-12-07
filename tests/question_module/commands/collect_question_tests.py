@@ -3,6 +3,8 @@
 import json
 import unittest
 import sys
+from contextlib import contextmanager
+from io import BytesIO as StringIO
 import dougrain
 import expert_system
 import httpretty
@@ -109,13 +111,6 @@ class TestCollectQuestion(unittest.TestCase):
 
         self.assertRaises(request_exceptions.WrongStatusCodeException,
                           lambda: self.collect_question_command.post_answer(self.host, self.answer_url % self.question_id, self.answer_text))
-
-    # Run the command
-    # def test_run_with_question(self):
-    #     self.collect_question_command.run(self.host, self.question_url)
-    #     print(sys.stdout.getvalue())
-    #
-    #     self.assertEqual(sys.stdout.getvalue(),'hello world!\n')
 
 if __name__ == '__main__':
     unittest.main()

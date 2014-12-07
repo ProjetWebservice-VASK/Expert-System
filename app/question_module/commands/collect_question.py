@@ -5,6 +5,7 @@ from flask.ext.script import Command, Option
 from app.question_module.exceptions.request_exceptions import WrongStatusCodeException, InvalidQuestionFormatException
 from pip.backwardcompat import raw_input
 import requests
+from simplejson import JSONDecodeError
 
 
 class CollectQuestion(Command):
@@ -35,12 +36,20 @@ class CollectQuestion(Command):
     def request_question(self, host, url):
         response = requests.get(self.url_format % (host, url))
 
+        # No new question
         if response.status_code == 204:
             return None
+        # New question
         elif response.status_code == 200:
-            question = dougrain.Document.from_object(response.json())
+            try:
+                question = dougrain.Document.from_object(response.json())
+            except JSONDecodeError:
+                raise InvalidQuestionFormatException()
+
+            # Wrong response format
             if not self.is_response_format_valid(question):
                 raise InvalidQuestionFormatException()
+        # Wrong status code
         elif response.status_code != 200:
             raise WrongStatusCodeException(response)
 
