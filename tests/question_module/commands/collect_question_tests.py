@@ -3,7 +3,6 @@
 import json
 import unittest
 import sys
-from StringIO import StringIO
 import dougrain
 import expert_system
 import httpretty
@@ -26,7 +25,6 @@ class TestCollectQuestion(unittest.TestCase):
         expert_system.app.config['TESTING'] = True
         self.app = expert_system.app.test_client()
         self.collect_question_command = CollectQuestion()
-        sys.stdout = StringIO()
 
     def tearDown(self):
         httpretty.reset()

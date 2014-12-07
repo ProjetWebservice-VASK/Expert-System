@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 
-import json
-import time
 import dougrain
 from flask.ext.script import Command, Option
 from app.question_module.exceptions.request_exceptions import WrongStatusCodeException, InvalidQuestionFormatException
