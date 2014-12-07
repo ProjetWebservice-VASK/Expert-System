@@ -1,6 +1,6 @@
 class WrongStatusCodeException(Exception):
     def __init__(self, response):
-        self.message = "The request responded with this status code : " + str(response.status_code) + " - " + response.reason
+        self.message = response.url + " => The request responded with this status code : " + str(response.status_code) + " - " + response.reason
 
     def __str__(self):
         return repr(self.message)

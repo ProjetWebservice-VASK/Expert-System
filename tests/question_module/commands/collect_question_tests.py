@@ -59,8 +59,7 @@ class TestCollectQuestion(unittest.TestCase):
         httpretty.register_uri(httpretty.GET, self.url_format % (self.host, self.question_url),
                                status=204)
 
-        self.assertRaises(request_exceptions.NoContentException,
-                          lambda: self.collect_question_command.request_question(self.host, self.question_url))
+        self.assertEquals(None, self.collect_question_command.request_question(self.host, self.question_url))
 
     # Answer creation
     def test_create_answer_request(self):
