@@ -7,3 +7,5 @@ python:
 install: pip install -r requirements.txt --use-mirrors
 # command to run tests, e.g. python setup.py test
 script: nosetests
+# Coveralls statistics
+after_success: coveralls
