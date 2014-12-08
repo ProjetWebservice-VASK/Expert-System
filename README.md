@@ -1,7 +1,7 @@
 Expert-System
 =============
 
-[![Build Status](https://travis-ci.org/ProjetWebservice-VASK/Expert-System.svg)](https://travis-ci.org/ProjetWebservice-VASK/Expert-System)
+[![Build Status](https://travis-ci.org/ProjetWebservice-VASK/Expert-System.svg)](https://travis-ci.org/ProjetWebservice-VASK/Expert-System) [![Coverage Status](https://coveralls.io/repos/ProjetWebservice-VASK/Expert-System/badge.png?branch=develop)](https://coveralls.io/r/ProjetWebservice-VASK/Expert-System?branch=develop)
 
 Python based Expert System to answer pending questions on the Question Server
 
