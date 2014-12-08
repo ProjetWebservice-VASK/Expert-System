@@ -8,3 +8,5 @@ mock==1.0.1
 requests==2.4.3
 httpretty
 dougrain
+coveralls
+coverage
