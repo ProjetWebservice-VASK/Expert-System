@@ -17,9 +17,10 @@ class CollectQuestion(Command):
         Option("-h", "--host", help="Question server address", required=True),
         Option("-u", "--url", help="Path to the question", required=True),
         Option("-t", "--time", help="Time to wait before requesting the next question"),
+        Option("-a", "--auto", help="Automatic question answers"),
     )
 
-    def run(self, host, url, time=5000):
+    def run(self, host, url, time=5000, auto=False):
         while True:
             print("Connecting to server...")
 
@@ -27,7 +28,10 @@ class CollectQuestion(Command):
                 question = self.request_question(host, url)
 
                 if question is not None:
-                    answer = raw_input(question.properties["question"])
+                    if auto:
+                        answer = "This is a generated answer"
+                    else:
+                        answer = raw_input(question.properties["question"])
                     self.post_answer(host, question.links["answer"].url(), answer)
                     print("Answer submitted...")
                 else:
