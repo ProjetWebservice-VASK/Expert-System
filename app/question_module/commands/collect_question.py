@@ -29,6 +29,7 @@ class CollectQuestion(Command):
 
                 if question is not None:
                     if auto:
+                        time.sleep(5000)
                         answer = "This is a generated answer"
                     else:
                         answer = raw_input(question.properties["question"])
