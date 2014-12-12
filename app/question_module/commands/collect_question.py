@@ -22,16 +22,21 @@ class CollectQuestion(Command):
     def run(self, host, url, time=5000):
         while True:
             print("Connecting to server...")
-            question = self.request_question(host, url)
 
-            if question is not None:
-                answer = raw_input(question.properties["question"])
-                self.post_answer(host, question.links["answer"].url(), answer)
-                print("Answer submitted...")
-            else:
-                print("No question to answer...")
-                print("Going to sleep for %d ms..." % time)
-                time.sleep(time)
+            try:
+                question = self.request_question(host, url)
+
+                if question is not None:
+                    answer = raw_input(question.properties["question"])
+                    self.post_answer(host, question.links["answer"].url(), answer)
+                    print("Answer submitted...")
+                else:
+                    print("No question to answer...")
+                    print("Going to sleep for %d ms..." % time)
+            except Exception:
+                continue
+
+            time.sleep(time)
 
     def request_question(self, host, url):
         response = requests.get(self.url_format % (host, url))
@@ -49,6 +54,9 @@ class CollectQuestion(Command):
             # Wrong response format
             if not self.is_response_format_valid(question):
                 raise InvalidQuestionFormatException()
+
+            # Question received
+            self.received_question(host, question.links["received"].url())
         # Wrong status code
         elif response.status_code != 200:
             raise WrongStatusCodeException(response)
@@ -58,10 +66,19 @@ class CollectQuestion(Command):
     def is_response_format_valid(self, response):
         if "id" not in response.properties \
                 or "question" not in response.properties \
-                or "answer" not in response.links:
+                or "answer" not in response.links \
+                or "received" not in response.links:
             return False
 
         return True
+
+    def received_question(self, host, received_question_url):
+        response = requests.post(self.url_format % (host, received_question_url))
+
+        if response.status_code == 204:
+            return True
+        else:
+            raise WrongStatusCodeException(response)
 
     def post_answer(self, host, answer_url, answer_text):
         answer_request = self.create_answer_request(host, answer_url, answer_text)
