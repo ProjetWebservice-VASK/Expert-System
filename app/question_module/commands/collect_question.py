@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import dougrain
+import random
 from flask.ext.script import Command, Option
 from app.question_module.exceptions.request_exceptions import WrongStatusCodeException, InvalidQuestionFormatException
 from pip.backwardcompat import raw_input
@@ -30,7 +31,7 @@ class CollectQuestion(Command):
                 if question is not None:
                     if auto:
                         time.sleep(5000)
-                        answer = "This is a generated answer"
+                        answer = random.choice(["This is a generated answer", None])
                     else:
                         answer = raw_input(question.properties["question"])
                     self.post_answer(host, question.links["answer"].url(), answer)
