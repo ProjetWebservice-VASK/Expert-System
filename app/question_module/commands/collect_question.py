@@ -4,7 +4,6 @@ import dougrain
 import random
 from flask.ext.script import Command, Option
 from app.question_module.exceptions.request_exceptions import WrongStatusCodeException, InvalidQuestionFormatException
-from pip.backwardcompat import raw_input
 import requests
 from simplejson import JSONDecodeError
 
@@ -33,7 +32,7 @@ class CollectQuestion(Command):
                         time.sleep(5000)
                         answer = random.choice(["This is a generated answer", None])
                     else:
-                        answer = raw_input(question.properties["question"])
+                        answer = input(question.properties["question"])
                     self.post_answer(host, question.links["answer"].url(), answer)
                     print("Answer submitted...")
                 else:
