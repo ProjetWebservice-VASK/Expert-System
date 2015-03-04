@@ -16,7 +16,7 @@ class TestCollectQuestion(unittest.TestCase):
     url_format = "http://%s/%s"
     host = "test.com"
 
-    question_url = "questions/latest"
+    question_url = "questions/next"
     received_question_url = "questions/%d/received"
 
     answer_url = "question/%d/answer"
