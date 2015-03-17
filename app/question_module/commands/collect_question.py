@@ -21,25 +21,22 @@ class CollectQuestion(Command):
     )
 
     def run(self, host, url, time=5000, auto=False):
+        print("Connecting to server...")
+
         while True:
-            print("Connecting to server...")
+            print("Polling next question...")
+            question = self.request_question(host, url)
 
-            try:
-                question = self.request_question(host, url)
-
-                if question is not None:
-                    if auto:
-                        time.sleep(5000)
-                        answer = random.choice(["This is a generated answer", None])
-                    else:
-                        answer = input(question.properties["question"])
-                    self.post_answer(host, question.links["answer"].url(), answer)
-                    print("Answer submitted...")
+            if question is not None:
+                if auto:
+                    answer = random.choice(["This is a generated answer", None])
                 else:
-                    print("No question to answer...")
-                    print("Going to sleep for %d ms..." % time)
-            except Exception:
-                continue
+                    answer = input(question.properties["question"])
+                self.post_answer(host, question.links["answer"].url(), answer)
+                print("Answer submitted...")
+            else:
+                print("No question to answer...")
+                print("Going to sleep for %d ms..." % time)
 
             time.sleep(time)
 
