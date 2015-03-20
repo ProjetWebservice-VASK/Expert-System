@@ -67,10 +67,8 @@ class CollectQuestion(Command):
         return question
 
     def is_response_format_valid(self, response):
-        if "id" not in response.properties \
-                or "question" not in response.properties \
-                or "answer" not in response.links \
-                or "received" not in response.links:
+        if "_id" not in response.properties \
+                or "question" not in response.properties:
             return False
 
         return True

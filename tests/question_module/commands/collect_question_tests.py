@@ -40,7 +40,7 @@ class TestCollectQuestion(unittest.TestCase):
     @httpretty.activate
     def test_request_question_found(self):
         request_body = dougrain.Builder(self.latest_question_url)\
-            .set_property("id", self.question_id) \
+            .set_property("_id", self.question_id) \
             .set_property("question", self.question_text) \
             .add_link("received", self.received_question_url % self.question_id) \
             .add_link("answer", self.answer_url % self.question_id)
@@ -61,7 +61,7 @@ class TestCollectQuestion(unittest.TestCase):
 
         response = self.collect_question_command.request_question(self.host, self.latest_question_url)
 
-        self.assertEquals(self.question_id, response.properties["id"])
+        self.assertEquals(self.question_id, response.properties["_id"])
         self.assertEquals(self.question_text, response.properties["question"])
         self.assertEquals(self.answer_url % self.question_id, response.links["answer"].url())
 
@@ -84,7 +84,7 @@ class TestCollectQuestion(unittest.TestCase):
     # Question format
     def test_is_response_format_valid_with_valid_response(self):
         response = dougrain.Builder(self.latest_question_url)\
-            .set_property("id", self.question_id) \
+            .set_property("_id", self.question_id) \
             .set_property("question", self.question_text) \
             .add_link("received", self.received_question_url % self.question_id) \
             .add_link("answer", self.answer_url % self.question_id).as_object()
@@ -116,7 +116,7 @@ class TestCollectQuestion(unittest.TestCase):
 
     @httpretty.activate
     def test_request_question_wrong_page(self):
-        request_body = dougrain.Builder(self.latest_question_url).set_property("id", self.question_id) \
+        request_body = dougrain.Builder(self.latest_question_url).set_property("_id", self.question_id) \
             .set_property("dog", "woof") \
             .add_link("cat", "meow")
 
