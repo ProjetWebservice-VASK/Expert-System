@@ -11,6 +11,7 @@ from simplejson import JSONDecodeError
 class CollectQuestion(Command):
     """Collects the latest question on the question server"""
 
+    base_url_format = "http://%s%s"
     url_format = "http://%s/%s"
 
     option_list = (
@@ -75,7 +76,7 @@ class CollectQuestion(Command):
         return True
 
     def received_question(self, host, received_question_url):
-        response = requests.post(self.url_format % (host, received_question_url))
+        response = requests.post(self.base_url_format % (host, received_question_url))
 
         if response.status_code == 204:
             return True
@@ -92,7 +93,7 @@ class CollectQuestion(Command):
             raise WrongStatusCodeException(response)
 
     def create_answer_request(self, host, answer_url, answer_text):
-        request = requests.Request("PUT", self.url_format % (host, answer_url))
+        request = requests.Request("PUT", self.base_url_format % (host, answer_url))
 
         if answer_text is not None:
             answer = {

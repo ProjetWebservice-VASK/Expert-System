@@ -10,14 +10,15 @@ from app.question_module.exceptions import request_exceptions
 
 
 class TestCollectQuestion(unittest.TestCase):
+    base_url_format = "http://%s%s"
     url_format = "http://%s/%s"
     host = "test.com"
 
     latest_question_url = "questions/next"
-    received_question_url = "questions/%d/received"
+    received_question_url = "/questions/%d/received"
 
-    answer_url = "question/%d/answer"
-    unknown_answer_url = "question/%d/answer"
+    answer_url = "/question/%d/answer"
+    unknown_answer_url = "/question/%d/answer"
 
     question_url = "questions/%d"
     question_id = 1
@@ -58,7 +59,7 @@ class TestCollectQuestion(unittest.TestCase):
                                content_type="application/hal+json")
 
         # Well received question url
-        httpretty.register_uri(httpretty.POST, self.url_format % (self.host, self.received_question_url % self.question_id),
+        httpretty.register_uri(httpretty.POST, self.base_url_format % (self.host, self.received_question_url % self.question_id),
                                status=204)
 
         response = self.collect_question_command.request_question(self.host, self.latest_question_url)
@@ -70,7 +71,7 @@ class TestCollectQuestion(unittest.TestCase):
     # Question received
     @httpretty.activate
     def test_request_question_received(self):
-        httpretty.register_uri(httpretty.POST, self.url_format % (self.host, self.received_question_url % self.question_id),
+        httpretty.register_uri(httpretty.POST, self.base_url_format % (self.host, self.received_question_url % self.question_id),
                                status=204)
 
         self.assertTrue(self.collect_question_command.received_question(self.host, self.received_question_url % self.question_id))
@@ -151,7 +152,7 @@ class TestCollectQuestion(unittest.TestCase):
         }
 
         self.assertEquals("PUT", request.method)
-        self.assertEquals(self.url_format % (self.host, self.answer_url % self.question_id), request.url)
+        self.assertEquals(self.base_url_format % (self.host, self.answer_url % self.question_id), request.url)
         self.assertEquals(expected_answer_json, request.json)
 
     def test_create_unknown_answer_request(self):
@@ -159,13 +160,13 @@ class TestCollectQuestion(unittest.TestCase):
                                                                       self.unknown_answer_url % self.question_id, None)
 
         self.assertEquals("PUT", request.method)
-        self.assertEquals(self.url_format % (self.host, self.unknown_answer_url % self.question_id), request.url)
+        self.assertEquals(self.base_url_format % (self.host, self.unknown_answer_url % self.question_id), request.url)
         self.assertEquals(None, request.json)
 
     # Posting answer
     @httpretty.activate
     def test_post_answer(self):
-        httpretty.register_uri(httpretty.PUT, self.url_format % (self.host, self.answer_url % self.question_id),
+        httpretty.register_uri(httpretty.PUT, self.base_url_format % (self.host, self.answer_url % self.question_id),
                                status=204)
 
         self.assertTrue(
@@ -173,7 +174,7 @@ class TestCollectQuestion(unittest.TestCase):
 
     @httpretty.activate
     def test_post_answer_with_error(self):
-        httpretty.register_uri(httpretty.PUT, self.url_format % (self.host, self.answer_url % self.question_id),
+        httpretty.register_uri(httpretty.PUT, self.base_url_format % (self.host, self.answer_url % self.question_id),
                                status=404)
 
         self.assertRaises(request_exceptions.WrongStatusCodeException,
