@@ -17,11 +17,11 @@ class CollectQuestion(Command):
     option_list = (
         Option("-h", "--host", help="Question server address", required=True),
         Option("-u", "--url", help="Path to the question", required=True),
-        Option("-t", "--timeout", help="Time to wait before requesting the next question"),
-        Option("-a", "--auto", help="Automatic question answers"),
+        Option("-t", "--timeout", help="Time to wait before requesting the next question", default=5000),
+        Option("-a", "--auto", help="Automatic question answers", default=False),
     )
 
-    def run(self, host, url, timeout=5000, auto=False):
+    def run(self, host, url, timeout, auto):
         print("Connecting to server at %s..." % self.url_format % (host, url))
 
         while True:
