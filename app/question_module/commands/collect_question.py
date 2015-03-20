@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import time
 
 import dougrain
 import random
@@ -16,12 +17,12 @@ class CollectQuestion(Command):
     option_list = (
         Option("-h", "--host", help="Question server address", required=True),
         Option("-u", "--url", help="Path to the question", required=True),
-        Option("-t", "--time", help="Time to wait before requesting the next question"),
+        Option("-t", "--timeout", help="Time to wait before requesting the next question"),
         Option("-a", "--auto", help="Automatic question answers"),
     )
 
-    def run(self, host, url, time=5000, auto=False):
-        print("Connecting to server...")
+    def run(self, host, url, timeout=5000, auto=False):
+        print("Connecting to server at %s..." % self.url_format % (host, url))
 
         while True:
             print("Polling next question...")
@@ -36,9 +37,9 @@ class CollectQuestion(Command):
                 print("Answer submitted...")
             else:
                 print("No question to answer...")
-                print("Going to sleep for %d ms..." % time)
+                print("Going to sleep for %d ms..." % timeout)
 
-            time.sleep(time)
+            time.sleep(timeout)
 
     def request_question(self, host, url):
         response = requests.get(self.url_format % (host, url))
