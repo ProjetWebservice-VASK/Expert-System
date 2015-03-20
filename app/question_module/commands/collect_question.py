@@ -39,7 +39,7 @@ class CollectQuestion(Command):
                 print("No question to answer...")
                 print("Going to sleep for %d ms..." % timeout)
 
-            time.sleep(timeout)
+            time.sleep(timeout / 1000)
 
     def request_question(self, host, url):
         response = requests.get(self.url_format % (host, url))
