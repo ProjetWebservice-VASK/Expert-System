@@ -2,9 +2,6 @@
 
 import json
 import unittest
-import sys
-from contextlib import contextmanager
-from io import BytesIO as StringIO
 import dougrain
 import expert_system
 import httpretty
@@ -39,11 +36,16 @@ class TestCollectQuestion(unittest.TestCase):
     # Question request
     @httpretty.activate
     def test_request_question_found(self):
-        request_body = dougrain.Builder(self.latest_question_url)\
-            .set_property("_id", self.question_id) \
-            .set_property("question", self.question_text) \
-            .add_link("received", self.received_question_url % self.question_id) \
-            .add_link("answer", self.answer_url % self.question_id)
+        request_body = json.dumps({
+            "question": {
+                "_id": self.question_id,
+                "question": self.question_text,
+            },
+            "_links": {
+                "received": self.received_question_url % self.question_id,
+                "answer": self.answer_url % self.question_id
+            }
+        })
 
         # Latest question volatile url
         httpretty.register_uri(httpretty.GET, self.url_format % (self.host, self.latest_question_url),
@@ -52,7 +54,7 @@ class TestCollectQuestion(unittest.TestCase):
 
         # Question resource url
         httpretty.register_uri(httpretty.GET, self.url_format % (self.host, self.question_url % self.question_id),
-                               body=json.dumps(request_body.as_object()),
+                               body=request_body,
                                content_type="application/hal+json")
 
         # Well received question url
@@ -61,9 +63,9 @@ class TestCollectQuestion(unittest.TestCase):
 
         response = self.collect_question_command.request_question(self.host, self.latest_question_url)
 
-        self.assertEquals(self.question_id, response.properties["_id"])
-        self.assertEquals(self.question_text, response.properties["question"])
-        self.assertEquals(self.answer_url % self.question_id, response.links["answer"].url())
+        self.assertEquals(self.question_id, response["question"]["_id"])
+        self.assertEquals(self.question_text, response["question"]["question"])
+        self.assertEquals(self.answer_url % self.question_id, response["_links"]["answer"])
 
     # Question received
     @httpretty.activate
@@ -83,21 +85,29 @@ class TestCollectQuestion(unittest.TestCase):
 
     # Question format
     def test_is_response_format_valid_with_valid_response(self):
-        response = dougrain.Builder(self.latest_question_url)\
-            .set_property("_id", self.question_id) \
-            .set_property("question", self.question_text) \
-            .add_link("received", self.received_question_url % self.question_id) \
-            .add_link("answer", self.answer_url % self.question_id).as_object()
+        response = {
+            "question": {
+                "_id": self.question_id,
+                "question": self.question_text,
+            },
+            "_links": {
+                "received": self.received_question_url % self.question_id,
+                "answer": self.answer_url % self.question_id
+            }
+        }
 
-        self.assertTrue(self.collect_question_command.is_response_format_valid(dougrain.Document.from_object(response)))
+        self.assertTrue(self.collect_question_command.is_response_format_valid(response))
 
     def test_is_response_format_valid_with_invalid_response(self):
-        response = dougrain.Builder(self.latest_question_url) \
-            .set_property("question", self.question_text) \
-            .add_link("received", self.received_question_url % self.question_id) \
-            .add_link("answer", self.answer_url % self.question_id).as_object()
+        response = {
+            "question": {},
+            "_links": {
+                "received": self.received_question_url % self.question_id,
+                "answer": self.answer_url % self.question_id
+            }
+        }
 
-        self.assertFalse(self.collect_question_command.is_response_format_valid(dougrain.Document.from_object(response)))
+        self.assertFalse(self.collect_question_command.is_response_format_valid(response))
 
     @httpretty.activate
     def test_request_question_not_found(self):
@@ -116,12 +126,16 @@ class TestCollectQuestion(unittest.TestCase):
 
     @httpretty.activate
     def test_request_question_wrong_page(self):
-        request_body = dougrain.Builder(self.latest_question_url).set_property("_id", self.question_id) \
-            .set_property("dog", "woof") \
-            .add_link("cat", "meow")
+        response = {
+            "_id": self.question_id,
+            "dog": "woof",
+            "_links": {
+                "cat": "meow"
+            }
+        }
 
         httpretty.register_uri(httpretty.GET, self.url_format % (self.host, self.latest_question_url),
-                               body=json.dumps(request_body.as_object()),
+                               body=response,
                                content_type="application/hal+json")
 
         self.assertRaises(request_exceptions.InvalidQuestionFormatException,

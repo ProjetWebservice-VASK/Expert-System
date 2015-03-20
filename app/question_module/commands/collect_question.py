@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import time
 
-import dougrain
 import random
 from flask.ext.script import Command, Option
 from app.question_module.exceptions.request_exceptions import WrongStatusCodeException, InvalidQuestionFormatException
@@ -50,25 +49,27 @@ class CollectQuestion(Command):
         # New question
         elif response.status_code == 200:
             try:
-                question = dougrain.Document.from_object(response.json())
+                questionHAL = response.json()
             except JSONDecodeError:
                 raise InvalidQuestionFormatException()
 
             # Wrong response format
-            if not self.is_response_format_valid(question):
+            if not self.is_response_format_valid(questionHAL):
                 raise InvalidQuestionFormatException()
 
             # Question received
-            self.received_question(host, question.links["received"].url())
+            self.received_question(host, questionHAL["_links"]["received"])
         # Wrong status code
         elif response.status_code != 200:
             raise WrongStatusCodeException(response)
 
-        return question
+        return questionHAL
 
     def is_response_format_valid(self, response):
-        if "_id" not in response.properties \
-                or "question" not in response.properties:
+        if "_id" not in response["question"] \
+                or "question" not in response["question"] \
+                or "received" not in response["_links"] \
+                or "answer" not in response["_links"]:
             return False
 
         return True
