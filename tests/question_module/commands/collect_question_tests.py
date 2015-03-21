@@ -2,7 +2,6 @@
 
 import json
 import unittest
-import dougrain
 import expert_system
 import httpretty
 from app.question_module.commands.collect_question import CollectQuestion

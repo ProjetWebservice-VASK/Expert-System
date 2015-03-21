@@ -26,14 +26,14 @@ class CollectQuestion(Command):
 
         while True:
             print("Polling next question...")
-            question = self.request_question(host, url)
+            questionHAL = self.request_question(host, url)
 
-            if question is not None:
+            if questionHAL is not None:
                 if auto:
                     answer = random.choice(["This is a generated answer", None])
                 else:
-                    answer = input(question.properties["question"])
-                self.post_answer(host, question.links["answer"].url(), answer)
+                    answer = input(questionHAL["question"]["question"])
+                self.post_answer(host, questionHAL["links"]["answer"], answer)
                 print("Answer submitted...")
             else:
                 print("No question to answer...")
