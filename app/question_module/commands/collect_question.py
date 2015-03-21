@@ -4,6 +4,7 @@ import time
 import random
 from flask.ext.script import Command, Option
 from app.question_module.exceptions.request_exceptions import WrongStatusCodeException, InvalidQuestionFormatException
+from pip.backwardcompat import raw_input
 import requests
 from simplejson import JSONDecodeError
 
@@ -32,8 +33,8 @@ class CollectQuestion(Command):
                 if auto:
                     answer = random.choice(["This is a generated answer", None])
                 else:
-                    answer = input(questionHAL["question"]["question"])
-                self.post_answer(host, questionHAL["links"]["answer"], answer)
+                    answer = raw_input(questionHAL["question"]["question"] + " : ")
+                self.post_answer(host, questionHAL["_links"]["answer"], answer)
                 print("Answer submitted...")
             else:
                 print("No question to answer...")
