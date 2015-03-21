@@ -4,7 +4,6 @@ import time
 import random
 from flask.ext.script import Command, Option
 from app.question_module.exceptions.request_exceptions import WrongStatusCodeException, InvalidQuestionFormatException
-from pip.backwardcompat import raw_input
 import requests
 from simplejson import JSONDecodeError
 
