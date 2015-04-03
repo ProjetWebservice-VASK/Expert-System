@@ -26,14 +26,14 @@ class CollectQuestion(Command):
 
         while True:
             print("Polling next question...")
-            questionHAL = self.request_question(host, url)
+            question_hal = self.request_question(host, url)
 
-            if questionHAL is not None:
+            if question_hal is not None:
                 if auto:
                     answer = random.choice(["This is a generated answer", None])
                 else:
-                    answer = raw_input(questionHAL["question"]["question"].encode('utf8') + " : ")
-                self.post_answer(host, questionHAL["_links"]["answer"], answer)
+                    answer = raw_input(question_hal["question"]["question"].encode('utf8') + " : ")
+                self.post_answer(host, question_hal["_links"]["answer"], answer)
                 print("Answer submitted...")
             else:
                 print("No question to answer...")
@@ -50,21 +50,22 @@ class CollectQuestion(Command):
         # New question
         elif response.status_code == 200:
             try:
-                questionHAL = response.json()
+                question_hal = response.json()
             except JSONDecodeError:
                 raise InvalidQuestionFormatException()
 
             # Wrong response format
-            if not self.is_response_format_valid(questionHAL):
+            if not self.is_response_format_valid(question_hal):
                 raise InvalidQuestionFormatException()
 
             # Question received
-            self.received_question(host, questionHAL["_links"]["received"])
+            if not self.received_question(host, question_hal["_links"]["received"]):
+                return self.request_question(host, url)
         # Wrong status code
         elif response.status_code != 200:
             raise WrongStatusCodeException(response)
 
-        return questionHAL
+        return question_hal
 
     def is_response_format_valid(self, response):
         if "_id" not in response["question"] \
@@ -80,6 +81,8 @@ class CollectQuestion(Command):
 
         if response.status_code == 204:
             return True
+        elif response.status_code == 409:
+            return False
         else:
             raise WrongStatusCodeException(response)
 

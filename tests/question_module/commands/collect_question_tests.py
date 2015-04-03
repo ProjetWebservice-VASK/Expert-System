@@ -76,8 +76,15 @@ class TestCollectQuestion(unittest.TestCase):
         self.assertTrue(self.collect_question_command.received_question(self.host, self.received_question_url % self.question_id))
 
     @httpretty.activate
+    def test_request_question_already_received(self):
+        httpretty.register_uri(httpretty.POST, self.base_url_format % (self.host, self.received_question_url % self.question_id),
+                               status=409)
+
+        self.assertFalse(self.collect_question_command.received_question(self.host, self.received_question_url % self.question_id))
+
+    @httpretty.activate
     def test_request_question_received_with_bad_response(self):
-        httpretty.register_uri(httpretty.POST, self.url_format % (self.host, self.received_question_url % self.question_id),
+        httpretty.register_uri(httpretty.POST, self.base_url_format % (self.host, self.received_question_url % self.question_id),
                                status=404)
 
         self.assertRaises(request_exceptions.WrongStatusCodeException,
