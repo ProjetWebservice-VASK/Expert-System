@@ -32,7 +32,7 @@ class CollectQuestion(Command):
                 if auto:
                     answer = random.choice(["This is a generated answer", None])
                 else:
-                    answer = raw_input(questionHAL["question"]["question"] + " : ")
+                    answer = raw_input(questionHAL["question"]["question"].encode('utf8') + " : ")
                 self.post_answer(host, questionHAL["_links"]["answer"], answer)
                 print("Answer submitted...")
             else:
