@@ -14,7 +14,7 @@ class TestCollectQuestion(unittest.TestCase):
     host = "test.com"
 
     latest_question_url = "questions/next"
-    received_question_url = "/questions/%d/received"
+    processing_question_url = "/questions/%d/processing"
 
     answer_url = "/question/%d/answer"
     unknown_answer_url = "/question/%d/answer"
@@ -42,7 +42,7 @@ class TestCollectQuestion(unittest.TestCase):
                 "question": self.question_text,
             },
             "_links": {
-                "received": self.received_question_url % self.question_id,
+                "received": self.processing_question_url % self.question_id,
                 "answer": self.answer_url % self.question_id
             }
         })
@@ -58,7 +58,7 @@ class TestCollectQuestion(unittest.TestCase):
                                content_type="application/hal+json")
 
         # Well received question url
-        httpretty.register_uri(httpretty.POST, self.base_url_format % (self.host, self.received_question_url % self.question_id),
+        httpretty.register_uri(httpretty.PUT, self.base_url_format % (self.host, self.processing_question_url % self.question_id),
                                status=204)
 
         response = self.collect_question_command.request_question(self.host, self.latest_question_url)
@@ -70,25 +70,25 @@ class TestCollectQuestion(unittest.TestCase):
     # Question received
     @httpretty.activate
     def test_request_question_received(self):
-        httpretty.register_uri(httpretty.POST, self.base_url_format % (self.host, self.received_question_url % self.question_id),
+        httpretty.register_uri(httpretty.PUT, self.base_url_format % (self.host, self.processing_question_url % self.question_id),
                                status=204)
 
-        self.assertTrue(self.collect_question_command.received_question(self.host, self.received_question_url % self.question_id))
+        self.assertTrue(self.collect_question_command.received_question(self.host, self.processing_question_url % self.question_id))
 
     @httpretty.activate
     def test_request_question_already_received(self):
-        httpretty.register_uri(httpretty.POST, self.base_url_format % (self.host, self.received_question_url % self.question_id),
+        httpretty.register_uri(httpretty.PUT, self.base_url_format % (self.host, self.processing_question_url % self.question_id),
                                status=409)
 
-        self.assertFalse(self.collect_question_command.received_question(self.host, self.received_question_url % self.question_id))
+        self.assertFalse(self.collect_question_command.received_question(self.host, self.processing_question_url % self.question_id))
 
     @httpretty.activate
     def test_request_question_received_with_bad_response(self):
-        httpretty.register_uri(httpretty.POST, self.base_url_format % (self.host, self.received_question_url % self.question_id),
+        httpretty.register_uri(httpretty.PUT, self.base_url_format % (self.host, self.processing_question_url % self.question_id),
                                status=404)
 
         self.assertRaises(request_exceptions.WrongStatusCodeException,
-                          lambda: self.collect_question_command.received_question(self.host, self.received_question_url % self.question_id))
+                          lambda: self.collect_question_command.received_question(self.host, self.processing_question_url % self.question_id))
 
     # Question format
     def test_is_response_format_valid_with_valid_response(self):
@@ -98,7 +98,7 @@ class TestCollectQuestion(unittest.TestCase):
                 "question": self.question_text,
             },
             "_links": {
-                "received": self.received_question_url % self.question_id,
+                "received": self.processing_question_url % self.question_id,
                 "answer": self.answer_url % self.question_id
             }
         }
@@ -109,7 +109,7 @@ class TestCollectQuestion(unittest.TestCase):
         response = {
             "question": {},
             "_links": {
-                "received": self.received_question_url % self.question_id,
+                "received": self.processing_question_url % self.question_id,
                 "answer": self.answer_url % self.question_id
             }
         }

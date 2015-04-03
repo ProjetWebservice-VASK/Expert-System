@@ -61,6 +61,7 @@ class CollectQuestion(Command):
             # Question received
             if not self.received_question(host, question_hal["_links"]["received"]):
                 return self.request_question(host, url)
+
         # Wrong status code
         elif response.status_code != 200:
             raise WrongStatusCodeException(response)
@@ -77,7 +78,7 @@ class CollectQuestion(Command):
         return True
 
     def received_question(self, host, received_question_url):
-        response = requests.post(self.base_url_format % (host, received_question_url))
+        response = requests.put(self.base_url_format % (host, received_question_url))
 
         if response.status_code == 204:
             return True
